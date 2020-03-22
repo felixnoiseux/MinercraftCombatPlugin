@@ -9,44 +9,44 @@ import org.bukkit.entity.Player;
 
 public class LobbyCombat {
 
-	ArrayList<Player> _players;
+	ArrayList<PlayerCustom> _playerCustomInLobby;
 	int _lobbyCapacite;
 	boolean _estComplet;
 	
 	public LobbyCombat() {
-		_players = new ArrayList<Player>();
+		_playerCustomInLobby = new ArrayList<PlayerCustom>();
 		_lobbyCapacite = 2;
 		_estComplet = false;
 	}
 	
-	public void JoinLobby(Player player) {
+	public void JoinLobby(PlayerCustom playerCustom) {
 		
 		if(!_estComplet) {
 			
-			_players.add(player);
+			_playerCustomInLobby.add(playerCustom);
 			
 			//Verifier si le lobby est maintenant plein
-			if(_players.size() == _lobbyCapacite) {
-				Player p1 = _players.get(0);
-				Player p2 = _players.get(1);
+			if(_playerCustomInLobby.size() == _lobbyCapacite) {
+				Player p1 = _playerCustomInLobby.get(0).RecevoirPlayer();
+				Player p2 = _playerCustomInLobby.get(1).RecevoirPlayer();
 				_estComplet = true;
 			}
 		}
 	}
 	
-	public void QuitterLobby(Player player) {
-		_players.remove(player);
+	public void QuitterLobby(PlayerCustom playerCustom) {
+		_playerCustomInLobby.remove(playerCustom);
 		if(_estComplet) {
 			_estComplet = false;
 		}
 	}
 	
-	public ArrayList<Player> Players(){
-		return _players;
+	public ArrayList<PlayerCustom> Players(){
+		return _playerCustomInLobby;
 	}
 	
 	public void ViderLobby() {
-		_players = new ArrayList<Player>();
+		_playerCustomInLobby = new ArrayList<PlayerCustom>();
 		_estComplet = false;
 	}
 	

@@ -8,24 +8,29 @@ import ca.felixnoiseux.monplugin.commands.CommandTest;
 
 public class Main extends JavaPlugin {
 	
-	PlayersList playersList = new PlayersList();
+	PlayerCustomList _playerCustomList = new PlayerCustomList();
 	
 
 	//onEnable (Quand le plugin s'allume)
 	@Override
 	public void onEnable() {
-		//sysout + CTRL + ESPACE
-		System.out.println("Le plugin est turn on");
-		System.out.println("Initialisation des commandes");
+		System.out.println("==================PLUGIN EN DEMARRAGE================");
+		
+		System.out.println("INITIALISATION DES EVENEMENTS");
+		getServer().getPluginManager().registerEvents(new PluginListeners(_playerCustomList),this);
+		System.out.println("INITIALISATION DES EVENEMENTS TERMINE");
+		
+		System.out.println("INITIALISATION DES COMMANDES");
 		getCommand("test").setExecutor(new CommandTest());
 		getCommand("alert").setExecutor(new CommandTest());
-		getCommand("combat").setExecutor(new CommandCombat(playersList));
+		getCommand("combat").setExecutor(new CommandCombat(_playerCustomList));
 		getCommand("spawn").setExecutor(new CommandSpawn());
-		getServer().getPluginManager().registerEvents(new PluginListeners(playersList),this);
+		System.out.println("INITIALISATION DES COMMANDES TERMINE");
+	
 	}
 	
 	@Override
 	public void onDisable() {
-		System.out.println("Le plugin est turn off");
+		System.out.println("==================PLUGIN FERME====================");
 	}
 }

@@ -10,51 +10,38 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import ca.felixnoiseux.monplugin.Emplacement;
 import ca.felixnoiseux.monplugin.LobbyCombat;
-import ca.felixnoiseux.monplugin.PlayersList;
+import ca.felixnoiseux.monplugin.PlayerCustom;
+import ca.felixnoiseux.monplugin.PlayerCustomList;
 
 
 public class CommandCombat implements CommandExecutor {
 
-	PlayersList _playersList;
-	LobbyCombat lobby = new LobbyCombat();
-	//Location du lobby du combat
-	double lobbyX = -8.5;
-	double lobbyY = 70.0;
-	double lobbyZ = 93.5;
-	float lobbyVx = -0.4f;
-	float lobbyVy = 4.7f;
+	private PlayerCustomList _playerCustomList;
+	private LobbyCombat _lobby;
+	private Player _player;
+	private PlayerCustom _playerCustom;
+
 	
-	//Location Arene Postion Ennemi
-	double areneEnnemiX = 10.6;
-	double areneEnnemiY = 68.0;
-	double areneEnnemiZ = 85.227;
-	float areneEnnemiVx = 44.8f;
-	float areneEnnemiVy = 14.9f;
-	
-	//Location Arene Postion Ami
-	double areneAmiX = 3.561;
-	double areneAmiY = 68.0;
-	double areneAmiZ = 92.443;
-	float areneAmiVx = -131.2f;
-	float areneAmiVy = 13.0f;
-	
-	public CommandCombat(PlayersList playersList){
-		_playersList = playersList;
+	public CommandCombat(PlayerCustomList playerCustomList){
+		_playerCustomList = playerCustomList;
+		_lobby = new LobbyCombat();
 	}
 	
 	@Override
 	public boolean onCommand(CommandSender sender,  Command cmd,  String msg, String[] args) {
 		
 		if(sender instanceof Player) {
+			
 			boolean ennemiExistant = false;
-			Player player = (Player)sender;
+			_player = (Player)sender;
+			InitialiserPlayerCustom();
 			
 			if(cmd.getName().equalsIgnoreCase("combat")){
 				
-				//Trop d'arguments
 				if(args.length > 1) {
-					player.sendMessage("Veuillez ecrire le nom du joueur seulement");
+					_player.sendMessage("Veuillez ecrire le nom du joueur seulement");
 					return false;
 				}
 				// Request d'un joueur
@@ -63,11 +50,14 @@ public class CommandCombat implements CommandExecutor {
 					
 					String nomEnnemi = args[0];
 					 
-					for(int i = 0; i < _playersList.Players().size(); i++) {
+					//Verifier Si Ennemi existe
+					for(int i = 0; i < _playerCustomList.PlayersCustom().size(); i++) {
 						
-						Player p = _playersList.Players().get(i);
+						Player p = _playerCustomList.PlayersCustom().get(i).RecevoirPlayer();
 						if(p.getName() == nomEnnemi) {
-							//Request l'ennemi
+							
+							//TODO Request l'ennemi
+							RequestCombatEnnemi();
 							
 							ennemiExistant = true;
 							break;
@@ -76,49 +66,42 @@ public class CommandCombat implements CommandExecutor {
 					}
 					
 					if(!ennemiExistant) {
-						player.sendMessage("Ennemi hors ligne");
+						_player.sendMessage("Ennemi hors ligne");
 						return false;
 					}
 				
 				}
 				//Combat aleatoire (Teleportation au Lobby, attente d'un autre joueur)
 				else {
-					Location lobbyLocation = new Location(player.getWorld(),lobbyX,lobbyY,lobbyZ,lobbyVx,lobbyVy);
-					Location areneEnnemiLocation = new Location(player.getWorld(),areneEnnemiX,areneEnnemiY,areneEnnemiZ,areneEnnemiVx,areneEnnemiVy);
-					Location areneAmiLocation = new Location(player.getWorld(), areneAmiX, areneAmiY, areneAmiZ, areneAmiVx, areneAmiVy);
 
 					try {
 						
-						player.sendMessage("Teleportation lobby du combat");
+						_playerCustom.RecevoirPlayer().sendMessage("Teleportation lobby du combat");
 						for(int i = 3; i > 0; i--) {
-							player.sendMessage("§a===" + Integer.toString(i) + "===");
+							_playerCustom.RecevoirPlayer().sendMessage("§a===" + Integer.toString(i) + "===");
 							TimeUnit.SECONDS.sleep(1);
 						}
 						
-						lobby.JoinLobby(player);
-						player.teleport(lobbyLocation);
-						
-						
-						//Debug
-						Bukkit.broadcastMessage(String.valueOf(lobby.Players().size()));
-						Bukkit.broadcastMessage(String.valueOf(lobby.EstComplet()));
-						
-						if(lobby.EstComplet()) {
+						_lobby.JoinLobby(_playerCustom);
+						_playerCustom.modifierEmplacementPlayer(Emplacement.LOBBY_COMBAT);
+
+
+						if(_lobby.EstComplet()) {
 							//Teleportation vers le combat dans 3 seconde
-							Player p1 = lobby.Players().get(0);
-							Player p2 = lobby.Players().get(1);
+							PlayerCustom p1 = _lobby.Players().get(0);
+							PlayerCustom p2 = _lobby.Players().get(1);
 							
-							player.sendMessage("Le combat debute dans ");
+							_playerCustom.RecevoirPlayer().sendMessage("Le combat debute dans ");
 							for(int i = 3; i > 0; i--) {
-								player.sendMessage("§a===" + Integer.toString(i) + "===");
+								_player.sendMessage("§a===" + Integer.toString(i) + "===");
 								TimeUnit.SECONDS.sleep(1);
 							}
 							
-							p1.teleport(areneEnnemiLocation);
-							p2.teleport(areneAmiLocation);
+							p1.modifierEmplacementPlayer(Emplacement.ARENE_COMBAT_ENNEMI);
+							p2.modifierEmplacementPlayer(Emplacement.ARENE_COMBAT_AMI);
 							
-							player.sendMessage("Maintenant !");
-							lobby.ViderLobby();
+							_playerCustom.RecevoirPlayer().sendMessage("Maintenant !");
+							_lobby.ViderLobby();
 						}
 						
 						
@@ -139,6 +122,23 @@ public class CommandCombat implements CommandExecutor {
 		
 		
 		return false;
+	}
+	
+	//Initialise le PlayerCustom de Player
+	private void InitialiserPlayerCustom() {
+		//Bukkit.broadcastMessage(String.valueOf(_playerCustomList.PlayersCustom().size()));
+		for(int i=0; i < _playerCustomList.PlayersCustom().size(); i++) {
+			Player p = _playerCustomList.PlayersCustom().get(i).RecevoirPlayer();
+			//Bukkit.broadcastMessage(p.getName());
+			if(_player == p) {
+				_playerCustom = _playerCustomList.PlayersCustom().get(i);
+				break;
+			}
+		}
+	}
+	
+	private void RequestCombatEnnemi() {
+		
 	}
 
 }
