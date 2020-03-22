@@ -1,0 +1,15 @@
+name: MonPlugin
+version: 1.0
+author: FelixNoiseux
+main: ca.felixnoiseux.monplugin.Main
+commands:
+  test:
+    description: Ceci est une commande de test
+    permission: test.use
+  alert:
+    description: Ceci est un broadcast custom
+    permission: bc.use
+  spawn:
+    description: Teleporte au spawn en delai de 3 secondes
+  combat:
+    description: demarre un combat
