@@ -9,6 +9,8 @@ public class PlayerCustom {
 	private boolean _estDansLobbyCombat;
 	private boolean _estAuSpawn;
 	private EmplacementLocation _emplacementLocation;
+	private boolean _estRequestPourCombat;
+	private PlayerCustom _ennemiRequestPourCombat;
 	
 	PlayerCustom(Player player, EmplacementLocation emplacementLocation){
 		_player = player;
@@ -16,6 +18,7 @@ public class PlayerCustom {
 		_estDansLobbyCombat = false;
 		_estAuSpawn = false;
 		_emplacementLocation = emplacementLocation;
+		_estRequestPourCombat = false;
 	}
 	
 	public Player RecevoirPlayer() {
@@ -61,6 +64,18 @@ public class PlayerCustom {
 			break;
 		}
 	}
+	
+	public void definirRequestCombat(boolean etat, PlayerCustom ennemi) {
+		_estRequestPourCombat = etat;
+		_ennemiRequestPourCombat = ennemi;
+	}
+	public boolean estRequestPourCombat() {
+		return _estRequestPourCombat;
+	}
+	public PlayerCustom ennemiRequestPourCombat() {
+		return _ennemiRequestPourCombat;
+	}
+	
 	public boolean estDansAreneCombat() {
 		return _estDansAreneCombat;
 	}

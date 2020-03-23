@@ -3,6 +3,7 @@ package ca.felixnoiseux.monplugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import ca.felixnoiseux.monplugin.commands.CommandCombat;
+import ca.felixnoiseux.monplugin.commands.CommandKit;
 import ca.felixnoiseux.monplugin.commands.CommandSpawn;
 import ca.felixnoiseux.monplugin.commands.CommandTest;
 
@@ -24,6 +25,7 @@ public class Main extends JavaPlugin {
 		getCommand("test").setExecutor(new CommandTest());
 		getCommand("alert").setExecutor(new CommandTest());
 		getCommand("combat").setExecutor(new CommandCombat(_playerCustomList));
+		getCommand("kit").setExecutor(new CommandKit(_playerCustomList));
 		getCommand("spawn").setExecutor(new CommandSpawn());
 		System.out.println("INITIALISATION DES COMMANDES TERMINE");
 	

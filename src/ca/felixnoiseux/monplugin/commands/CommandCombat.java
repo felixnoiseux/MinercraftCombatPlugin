@@ -22,6 +22,7 @@ public class CommandCombat implements CommandExecutor {
 	private LobbyCombat _lobby;
 	private Player _player;
 	private PlayerCustom _playerCustom;
+	private PlayerCustom _ennemiCustom;
 
 	
 	public CommandCombat(PlayerCustomList playerCustomList){
@@ -48,26 +49,55 @@ public class CommandCombat implements CommandExecutor {
 				else if(args.length == 1) {
 					
 					
-					String nomEnnemi = args[0];
-					 
-					//Verifier Si Ennemi existe
-					for(int i = 0; i < _playerCustomList.PlayersCustom().size(); i++) {
+					String arg = args[0];
+					
+					// /combat accept
+					if(arg.equalsIgnoreCase("accept")) {
 						
-						Player p = _playerCustomList.PlayersCustom().get(i).RecevoirPlayer();
-						if(p.getName() == nomEnnemi) {
+						if(_playerCustom.estRequestPourCombat()) {
 							
-							//TODO Request l'ennemi
-							RequestCombatEnnemi();
-							
-							ennemiExistant = true;
-							break;
+							try {
+							 Player ennemi = _playerCustom.ennemiRequestPourCombat().RecevoirPlayer();
+							 _player.sendMessage("Teleportation arene");
+							 ennemi.sendMessage("Combat accepte ! | Teleportation arene");
+								for(int i = 3; i > 0; i--) {
+									_player.sendMessage("§a===" + Integer.toString(i) + "===");
+									ennemi.sendMessage("§a===" + Integer.toString(i) + "===");
+									TimeUnit.SECONDS.sleep(1);
+									
+								}
+								
+								_playerCustom.modifierEmplacementPlayer(Emplacement.ARENE_COMBAT_AMI);
+								_playerCustom.ennemiRequestPourCombat().modifierEmplacementPlayer(Emplacement.ARENE_COMBAT_ENNEMI);
+							}
+							 catch (InterruptedException e) {
+									e.printStackTrace();
+								}
 						}
 						
 					}
+					// /combat nomEnnemi
+					else {
 					
-					if(!ennemiExistant) {
-						_player.sendMessage("Ennemi hors ligne");
-						return false;
+						//Verifier Si Ennemi existe
+						for(int i = 0; i < _playerCustomList.PlayersCustom().size(); i++) {
+							
+							Player p = _playerCustomList.PlayersCustom().get(i).RecevoirPlayer();
+							if(p.getName().equals(arg)) {
+								
+								_ennemiCustom = _playerCustomList.PlayersCustom().get(i);
+								RequestCombatEnnemi();
+								
+								ennemiExistant = true;
+								break;
+							}
+							
+						}
+						
+						if(!ennemiExistant) {
+							_player.sendMessage("Ennemi hors ligne");
+							return false;
+						}
 					}
 				
 				}
@@ -138,6 +168,9 @@ public class CommandCombat implements CommandExecutor {
 	}
 	
 	private void RequestCombatEnnemi() {
+		_ennemiCustom.RecevoirPlayer().sendMessage(_playerCustom.RecevoirPlayer().getName() + " veux vous combattre. ");
+		_ennemiCustom.RecevoirPlayer().sendMessage("§c[/combat accept] §epour vous combattre. ");
+		_ennemiCustom.definirRequestCombat(true, _playerCustom);
 		
 	}
 
