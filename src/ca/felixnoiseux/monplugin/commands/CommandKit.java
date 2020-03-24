@@ -14,31 +14,38 @@ import ca.felixnoiseux.monplugin.PlayerCustomList;
 
 public class CommandKit implements CommandExecutor {
 
-	private ArrayList<String> _lstKit = new ArrayList<String>() {{add("guerrier"); add("archer"); add("mage"); }};
+	private ArrayList<String> _lstKit = new ArrayList<String>() {
+		{
+			add("guerrier");
+			add("archer");
+			add("mage");
+		}
+	};
 	private PlayerCustomList _playerCustomList;
 	private PlayerCustom _playerCustom;
 	private Player _player;
 	private String _kit;
-	
-	public CommandKit(PlayerCustomList playerCustomList){
+
+	public CommandKit(PlayerCustomList playerCustomList) {
 		_playerCustomList = playerCustomList;
 	}
-	
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String msg, String[] args) {
 
-		if(!(sender instanceof Player)) return false;
-		
-		_player = (Player)sender;
-		_playerCustom = PlayerCustom();
+		if (!(sender instanceof Player) || !(cmd.getName().equalsIgnoreCase("kit")))
+			return false;
+
+		_player = (Player) sender;
+		_playerCustom = RecevoirPlayerCustom();
 		_kit = args[0].toLowerCase();
-		
+
 		EquiperJoueur();
 		DonnerKit();
-		
-		return false;
+
+		return true;
 	}
-	
+
 	private void EquiperJoueur() {
 		_player.getInventory().clear();
 		_player.getInventory().setHelmet(new ItemStack(Material.IRON_HELMET));
@@ -47,16 +54,15 @@ public class CommandKit implements CommandExecutor {
 		_player.getInventory().setBoots(new ItemStack(Material.IRON_BOOTS));
 		_player.updateInventory();
 	}
-	
+
 	private void DonnerKit() {
-		
-		if(!_lstKit.contains(_kit)) {
+
+		if (!_lstKit.contains(_kit)) {
 			_player.sendMessage("|Kit Inexistant|-GUERRIER-ARCHER-MAGE-");
 			return;
 		}
-		
-		
-		switch(_kit) {
+
+		switch (_kit) {
 		case "guerrier":
 			_player.getInventory().setItemInMainHand(new ItemStack(Material.DIAMOND_SWORD));
 			break;
@@ -65,18 +71,18 @@ public class CommandKit implements CommandExecutor {
 			_player.getInventory().addItem(new ItemStack(Material.TIPPED_ARROW, 64));
 			break;
 		case "mage":
-			_player.getInventory().addItem(new ItemStack(Material.SPLASH_POTION,16));
-			_player.getInventory().addItem(new ItemStack(Material.SPLASH_POTION,16));
+			_player.getInventory().addItem(new ItemStack(Material.SPLASH_POTION, 16));
+			_player.getInventory().addItem(new ItemStack(Material.SPLASH_POTION, 16));
 			break;
 		}
-		
+
 		_player.updateInventory();
 	}
-	
-	private PlayerCustom PlayerCustom() {
 
-		for(int i=0; i < _playerCustomList.PlayersCustom().size(); i++) {
-			if(_player == _playerCustomList.PlayersCustom().get(i).RecevoirPlayer()) {
+	private PlayerCustom RecevoirPlayerCustom() {
+
+		for (int i = 0; i < _playerCustomList.PlayersCustom().size(); i++) {
+			if (_player == _playerCustomList.PlayersCustom().get(i).RecevoirPlayer()) {
 				return _playerCustomList.PlayersCustom().get(i);
 			}
 		}
